@@ -130,9 +130,27 @@ class Format:
                 'numBytes':num_bytes,
                 'minSourceSymbols':min_source_symbols
             }))
+    def evaluate(self,input_file_path='prepare.json',output_file_path='result.json'):
+        with open(input_file_path,'r',encoding='utf-8') as f:
+            data=json.loads(f.read())
+        num_frames=data['lastIndex']-data['firstIndex']+1
+        frame_error_rate=data['numErrorFrames']/num_frames
+        goodput=data['numBytes']*8/(num_frames/30)/1024
+        percent_extra_frames=num_frames/(data['minSourceSymbols']/data['fps']*30)-1
+        with open(output_file_path,'w',encoding='utf-8') as f:
+            f.write(json.dumps({
+                'fps':data['fps'],
+                'distance':data['distance'],
+                'frameErrorRate':frame_error_rate,
+                'goodput':goodput,
+                'percentExtraFrames':percent_extra_frames
+            }))
+
+
 
 if __name__ == '__main__':
     format = Format()
     #format.format_log('/Volumes/扩展存储/实验/BlackWhiteCodeWithBar/100x100_0.1/视频/28fps_50cm_4x/2017-06-28 13:39:09.txt')
     format.format_log_learning('/Volumes/扩展存储/实验/BlackWhiteCodeML/60x60_0.1/视频/22fps_50cm_3x/1683/learning.txt')
     format.prepare_evaluate()
+    format.evaluate()
