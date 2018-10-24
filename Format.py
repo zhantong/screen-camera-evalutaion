@@ -26,18 +26,19 @@ class Format:
         with open(output_file_path, 'w', encoding='utf-8') as f:
             f.write(json.dumps(result))
 
-    def format_log_learning(self, log_file_path, output_file_path='output.json'):
+    def format_log_learning(self, barcode_config_file_path, log_file_path, output_file_path='output.json'):
         log_reg = re.compile(r'(.*?)\s\[(.*?)\]\s(.*?)\s(.*?)\s\[(.*?)\]\s\-\s(.*?)$')
         result = {}
         result['frames'] = []
+        with open(barcode_config_file_path, 'r', encoding='utf-8') as f:
+            content = f.read()
+            result['barcodeConfig'] = json.loads(content)
         with open(log_file_path, 'r', encoding='utf-8') as f:
             for line in f:
                 res = log_reg.findall(line)
                 log_type = res[0][4]
                 log_content = res[0][5]
-                if log_type == 'barcodeConfig':
-                    result['barcodeConfig'] = json.loads(log_content)
-                elif log_type == 'fecParameters':
+                if log_type == 'fecParameters':
                     result['fecParameters'] = json.loads(log_content)
                 elif log_type == 'processed':
                     result['frames'].append(json.loads(log_content))
@@ -158,6 +159,7 @@ class Format:
 if __name__ == '__main__':
     format = Format()
     # format.format_log('/Volumes/扩展存储/实验/BlackWhiteCodeWithBar/100x100_0.1/视频/28fps_50cm_4x/2017-06-28 13:39:09.txt')
-    format.format_log_learning('/Volumes/扩展存储/实验/BlackWhiteCodeML/60x60_0.1/视频/22fps_50cm_3x/1683/learning.txt')
+    format.format_log_learning('/Users/zhantong/Desktop/Screen-Camera/configs/BlackWhiteCodeML.json',
+                               '/Volumes/扩展存储/MegaLight附加实验/拍摄到视频/魅族pro7 plus/60/V80913-150204/Screen-Camera/2018-10-22-21-14-06.log')
     format.prepare_evaluate()
     format.evaluate()
